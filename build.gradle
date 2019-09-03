@@ -1,0 +1,89 @@
+plugins {
+    id "org.jetbrains.kotlin.jvm" version "1.3.50"
+    id "maven-publish"
+    id "io.gitlab.arturbosch.detekt" version "1.0.1"
+}
+
+group = "kz.btsd.bot"
+ext.moduleName = 'kz.btsd.bot.botsdk'
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+        freeCompilerArgs = ["-Xjsr305=strict"]
+    }
+}
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}
+
+compileKotlin.destinationDir = compileJava.destinationDir
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allSource
+}
+
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        def requested = details.requested
+        if (requested.group == 'org.jetbrains.kotlin') {
+            details.useVersion kotlinVersion
+        }
+    }
+}
+
+dependencies {
+    implementation("org.jetbrains.kotlin:kotlin-stdlib")
+    implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
+
+    compile("kz.btsd:bot-api-contract:$botApiContractVersion")
+
+    implementation("com.squareup.okhttp3:okhttp:$okHttpVersion")
+    implementation("com.squareup.okhttp3:logging-interceptor:$okHttpVersion")
+    implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
+    implementation("com.squareup.retrofit2:converter-jackson:$retrofitVersion")
+
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
+    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion")
+
+    testCompile "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+    testCompile "org.junit.jupiter:junit-jupiter-params:$junitVersion"
+    testRuntime "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+    testCompile "org.assertj:assertj-core:$assertJVersion"
+    testCompile "io.mockk:mockk:$mockkVersion"
+    testCompile "org.slf4j:slf4j-simple:$sl4jSimpleVersion"
+}
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets {
+    systemTest {
+        compileClasspath += sourceSets.main.output + configurations.testCompile + configurations.runtimeClasspath
+        runtimeClasspath += output + compileClasspath + configurations.testRuntime
+    }
+}
+
+task systemTest(type: Test) {
+    if (System.getenv('url') == null) {
+        environment "url", "https://messapi.btsdapps.net:443/bot/v1/"
+    }
+    if (System.getenv('token') == null) {
+        environment "token", "place_token_here"
+    }
+    useJUnitPlatform()
+    description = 'Runs the system tests.'
+    group = 'verification'
+    testClassesDirs = sourceSets.systemTest.output.classesDirs
+    classpath = sourceSets.systemTest.runtimeClasspath
+    outputs.upToDateWhen { false }
+}
