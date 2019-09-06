@@ -110,7 +110,6 @@ if (project.hasProperty("jiraUsername") && project.hasProperty("jiraPass")) {
                 version version
                 from components.java
                 artifact sourceJar
-                artifact javadocJar
 
                 pom {
 
