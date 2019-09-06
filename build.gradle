@@ -2,6 +2,7 @@ plugins {
     id "org.jetbrains.kotlin.jvm" version "1.3.50"
     id "maven-publish"
     id "io.gitlab.arturbosch.detekt" version "1.0.1"
+    id 'signing'
 }
 
 group = "kz.btsd.bot"
@@ -95,5 +96,59 @@ publishing {
             version = version
             from components.java
         }
+    }
+}
+
+def repo = "github.com/btsdigital/bot-sdk"
+
+if (project.hasProperty("jiraUsername") && project.hasProperty("jiraPass")) {
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                groupId 'kz.btsd'
+                artifactId 'bot-api-contract'
+                version version
+                from components.java
+                artifact sourceJar
+                artifact javadocJar
+
+                pom {
+
+                    description = 'bot sdk for AITU messenger bots'
+                    name = 'AITU bots Bot sdk'
+                    url = repo
+                    licenses {
+                        license {
+                            name = 'Apache License 2.0'
+                            url = "https://$repo/blob/master/LICENSE"
+                            distribution = 'repo'
+                        }
+                    }
+                    scm {
+                        url = "https://$repo"
+                        connection = "scm:git:git://$repo\\.git"
+                    }
+                    developers {
+                        developer {
+                            name = 'btsd bot platform'
+                            organization = "BTSD"
+                        }
+                    }
+                }
+            }
+        }
+        repositories {
+            maven {
+                url "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+                credentials {
+                    username jiraUsername
+                    password jiraPass
+                }
+            }
+        }
+    }
+
+    signing {
+        sign publishing.publications.mavenJava
     }
 }
