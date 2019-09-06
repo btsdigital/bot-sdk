@@ -87,3 +87,13 @@ task systemTest(type: Test) {
     classpath = sourceSets.systemTest.runtimeClasspath
     outputs.upToDateWhen { false }
 }
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = group
+            version = version
+            from components.java
+        }
+    }
+}
