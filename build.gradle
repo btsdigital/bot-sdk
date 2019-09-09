@@ -1,3 +1,10 @@
+buildscript {
+    dependencies {
+        classpath "com.bmuschko:gradle-nexus-plugin:${nexusPluginVersion}"
+        classpath "io.spring.gradle:dependency-management-plugin:${dependencyManagementPluginVersion}"
+    }
+}
+
 plugins {
     id "org.jetbrains.kotlin.jvm" version "1.3.50"
     id "maven-publish"
@@ -106,7 +113,7 @@ if (project.hasProperty("jiraUsername") && project.hasProperty("jiraPass")) {
         publications {
             mavenJava(MavenPublication) {
                 groupId 'kz.btsd'
-                artifactId 'bot-api-contract'
+                artifactId 'bot-sdk'
                 version version
                 from components.java
                 artifact sourceJar
