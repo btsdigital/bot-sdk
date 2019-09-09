@@ -28,7 +28,13 @@ compileJava {
 compileKotlin.destinationDir = compileJava.destinationDir
 
 task sourceJar(type: Jar) {
+    archiveClassifier = 'sources'
     from sourceSets.main.allSource
+}
+
+artifacts {
+    archives jar
+    archives sourceJar
 }
 
 configurations.all {

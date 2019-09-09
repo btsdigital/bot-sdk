@@ -25,7 +25,7 @@ after_success:
     test $TRAVIS_BRANCH = "master" &&
     ./cd/before-deploy.sh &&
     ./gradlew --version &&
-    ./gradlew --debug --stacktrace publish
+    ./gradlew --info publish
     -PjiraUsername=$OSSRH_JIRA_USERNAME
     -PjiraPass=$OSSRH_JIRA_PASSWORD
     -Psigning.keyId=$GPG_KEY_NAME
