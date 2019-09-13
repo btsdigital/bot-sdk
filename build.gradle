@@ -116,6 +116,7 @@ if (project.hasProperty("jiraUsername") && project.hasProperty("jiraPass")) {
                 from components.java
                 artifact sourceJar
                 artifact javadocJar
+                
 
                 pom {
 
